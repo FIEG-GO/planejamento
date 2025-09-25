@@ -85,7 +85,7 @@
         tr:nth-child(even) { background-color: #f9f9f9; }
         .total-row { font-weight: bold; background-color: #e9ecef; }
         
-        .interactive-table input, .interactive-table select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        .interactive-table input, .interactive-table select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-family: 'Montserrat', sans-serif; font-size: 0.9rem;}
         .action-button { background-color: var(--cor-secundaria-fieg); color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; transition: background-color 0.3s; }
         .action-button:hover { background-color: #007a29; }
         .remove-button { background-color: #dc3545; }
@@ -113,7 +113,7 @@
             .main-wrapper { box-shadow: none; padding: 0; backdrop-filter: none; background-color: #fff; }
             .container, .main-wrapper { padding: 0; }
             .action-buttons-footer, .table-actions, .remove-button { display: none; }
-            td input, td select { border: none; background: transparent; padding: 0; }
+            td input, td select { border: none; background: transparent; padding: 0; appearance: none; -webkit-appearance: none; }
             th { background-color: #f2f2f2 !important; color: black !important; -webkit-print-color-adjust: exact; }
             .total-row { background-color: #e9ecef !important; -webkit-print-color-adjust: exact; }
             .card, .eixo-estrategico { page-break-inside: avoid; }
@@ -252,9 +252,7 @@
                 <div class="eixo-header"><h2>Cronograma de Ações Interativo 2026</h2></div>
                 <div class="card">
                     <table class="interactive-table">
-                        <thead>
-                            <tr><th style="width: 50%;">Ação / Entrega</th><th style="width: 20%;">Mês</th><th style="width: 20%;">Custo (R$)</th><th style="width: 10%;">Ação</th></tr>
-                        </thead>
+                        <thead><tr><th style="width: 50%;">Ação / Entrega</th><th style="width: 20%;">Mês</th><th style="width: 20%;">Custo (R$)</th><th style="width: 10%;">Ação</th></tr></thead>
                         <tbody id="scheduleTableBody"></tbody>
                         <tfoot><tr class="total-row"><td colspan="2">Custo Total Previsto</td><td id="scheduleTotal">R$ 0,00</td><td></td></tr></tfoot>
                     </table>
@@ -337,26 +335,26 @@
         }
 
         const personnelRowHTML = (role = '', cost = '', start = 1) => `
-            <td><input type="text" value="${role}" oninput="updateAll()"></td>
-            <td><input type="number" value="${cost}" oninput="updateAll()"></td>
-            <td><select onchange="updateAll()">${months.map((m, i) => `<option value="${i + 1}" ${i + 1 == start ? 'selected' : ''}>${m}</option>`).join('')}</select></td>
+            <td><input type="text" value="${role}"></td>
+            <td><input type="number" value="${cost}"></td>
+            <td><select>${months.map((m, i) => `<option value="${i + 1}" ${i + 1 == start ? 'selected' : ''}>${m}</option>`).join('')}</select></td>
             <td><button class="action-button remove-button" onclick="removeRow(this, 'personnel')">X</button></td>`;
         
         const operationRowHTML = (category = '', description = '', cost = '') => `
             <td><input type="text" value="${category}"></td>
             <td><input type="text" value="${description}"></td>
-            <td><input type="number" value="${cost}" oninput="updateAll()"></td>
+            <td><input type="number" value="${cost}"></td>
             <td><button class="action-button remove-button" onclick="removeRow(this, 'operations')">X</button></td>`;
 
         const scheduleRowHTML = (action = '', month = 1, cost = '') => `
-            <td><input type="text" value="${action}" oninput="updateAll()"></td>
-            <td><select onchange="updateAll()">${months.map((m, i) => `<option value="${i + 1}" ${i + 1 == month ? 'selected' : ''}>${m}</option>`).join('')}</select></td>
-            <td><input type="number" value="${cost}" oninput="updateAll()"></td>
+            <td><input type="text" value="${action}"></td>
+            <td><select>${months.map((m, i) => `<option value="${i + 1}" ${i + 1 == month ? 'selected' : ''}>${m}</option>`).join('')}</select></td>
+            <td><input type="number" value="${cost}"></td>
             <td><button class="action-button remove-button" onclick="removeRow(this, 'schedule')">X</button></td>`;
 
-        function addPersonnelRow() { addRow('personnelTableBody', personnelRowHTML); updateAll(); }
-        function addOperationRow() { addRow('operationsTableBody', operationRowHTML); updateAll(); }
-        function addScheduleRow() { addRow('scheduleTableBody', scheduleRowHTML); updateAll(); }
+        function addPersonnelRow() { addRow('personnelTableBody', personnelRowHTML); }
+        function addOperationRow() { addRow('operationsTableBody', operationRowHTML); }
+        function addScheduleRow() { addRow('scheduleTableBody', scheduleRowHTML); }
 
         function removeRow(button, tableType) {
             button.closest('tr').remove();
@@ -426,11 +424,11 @@
             }
         }
 
-        // --- INICIALIZAÇÃO DA PÁGINA ---
+        // --- INICIALIZAÇÃO E EVENT LISTENERS ---
         document.addEventListener('DOMContentLoaded', () => {
-            initialPersonnel.forEach(p => addPersonnelRow(p.role, p.cost, p.start));
-            initialOperations.forEach(o => addOperationRow(o.category, o.description, o.cost));
-            initialSchedule.forEach(s => addScheduleRow(s.action, s.month, s.cost));
+            initialPersonnel.forEach(p => addRow('personnelTableBody', personnelRowHTML, p.role, p.cost, p.start));
+            initialOperations.forEach(o => addRow('operationsTableBody', operationRowHTML, o.category, o.description, o.cost));
+            initialSchedule.forEach(s => addRow('scheduleTableBody', scheduleRowHTML, s.action, s.month, s.cost));
 
             const ctx = document.getElementById('budgetChart').getContext('2d');
             budgetChart = new Chart(ctx, {
@@ -439,29 +437,25 @@
                     labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
                     datasets: [{ label: 'Custo Mensal da Equipe (R$)', data: [], backgroundColor: 'rgba(0, 51, 102, 0.8)', borderWidth: 1 }]
                 },
-                options: {
-                    responsive: true,
-                    scales: { y: { beginAtZero: true, ticks: { callback: (value) => 'R$ ' + value.toLocaleString('pt-BR') } } },
-                    plugins: { tooltip: { callbacks: { label: (context) => `Custo: ${context.parsed.y.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}` } } }
+                options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { callback: (value) => 'R$ ' + value.toLocaleString('pt-BR') } } }, plugins: { tooltip: { callbacks: { label: (context) => `Custo: ${context.parsed.y.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}` } } } }
+            });
+
+            // Event Delegation for all tables
+            document.querySelector('.container').addEventListener('input', (event) => {
+                if (event.target.tagName === 'INPUT' || event.target.tagName === 'SELECT') {
+                    updateAll();
                 }
             });
+            
             updateAll();
         });
         
-        // --- LÓGICA DOS BOTÕES DE AÇÃO FINAIS ---
         document.getElementById('savePdfBtn').addEventListener('click', () => {
             const element = document.getElementById('content-to-print');
             const buttons = document.querySelector('.action-buttons-footer');
-            const opt = {
-                margin: 0.5, filename: 'Planejamento_Estrategico_GEDIN_2026.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true },
-                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-            };
+            const opt = { margin: 0.5, filename: 'Planejamento_Estrategico_GEDIN_2026.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
             buttons.style.display = 'none';
-            html2pdf().set(opt).from(element).save().then(() => {
-                buttons.style.display = 'flex';
-            });
+            html2pdf().set(opt).from(element).save().then(() => { buttons.style.display = 'flex'; });
         });
         
         document.getElementById('printBtn').addEventListener('click', () => { window.print(); });
