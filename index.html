@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIEG | Planejamento Estratégico 2026 - Gerência de Desenvolvimento Industrial</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <style>
+        /* --- Configurações Gerais e Cores FIEG --- */
+        :root {
+            --cor-primaria-fieg: #003366; 
+            --cor-secundaria-fieg: #009933; 
+            --cor-texto: #333333;
+            --cor-texto-claro: #f8f9fa;
+            --cor-fundo: #eef2f5;
+            --cor-sombra: rgba(0, 51, 102, 0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        html { scroll-behavior: smooth; }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--cor-fundo);
+            color: var(--cor-texto);
+            line-height: 1.7;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23009933' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px; }
+        
+        .main-wrapper {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(5px);
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+
+        .header { text-align: center; margin-bottom: 50px; padding-bottom: 30px; border-bottom: 1px solid #ddd; }
+        .header img { height: 60px; margin-bottom: 20px; }
+        .header h1 { font-size: 2.5rem; color: var(--cor-primaria-fieg); font-weight: 700; margin-bottom: 10px; }
+        .header .subtitle { font-size: 1.2rem; color: #555; font-weight: 300; }
+        
+        .vision-statement {
+            background: linear-gradient(135deg, var(--cor-primaria-fieg), var(--cor-secundaria-fieg));
+            color: var(--cor-texto-claro);
+            padding: 30px;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 50px;
+            font-size: 1.1rem;
+            font-style: italic;
+            box-shadow: 0 8px 15px rgba(0, 51, 102, 0.2);
+        }
+
+        .eixo-estrategico { margin-bottom: 50px; }
+        .eixo-header { margin-bottom: 30px; }
+        .eixo-header h2 { font-size: 2rem; color: var(--cor-secundaria-fieg); font-weight: 600; padding-bottom: 10px; border-bottom: 3px solid var(--cor-primaria-fieg); display: inline-block; }
+
+        .cards-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; }
+        .card { background-color: #fff; border-radius: 8px; box-shadow: 0 5px 20px var(--cor-sombra); padding: 25px; border-left: 5px solid var(--cor-primaria-fieg); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .card:hover { transform: translateY(-8px); box-shadow: 0 12px 30px rgba(0, 51, 102, 0.15); }
+        .card h3 { font-size: 1.3rem; color: var(--cor-primaria-fieg); margin-bottom: 15px; }
+        .card p, .card ul { font-size: 0.95rem; }
+        .card ul { list-style-position: inside; padding-left: 5px; }
+        .card .highlight { font-weight: 600; color: var(--cor-secundaria-fieg); }
+        
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .kpi-card { background-color: #fff; padding: 20px; text-align: center; border-radius: 8px; box-shadow: 0 5px 20px var(--cor-sombra); }
+        .kpi-card .kpi-value { font-size: 2.5rem; font-weight: 700; color: var(--cor-primaria-fieg); }
+        .kpi-card .kpi-title { font-size: 1rem; color: #666; margin-top: 5px; }
+
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #ddd; }
+        th { background-color: var(--cor-primaria-fieg); color: white; font-weight: 600; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .total-row { font-weight: bold; background-color: #e9ecef; }
+        
+        .interactive-table input, .interactive-table select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        .action-button { background-color: var(--cor-secundaria-fieg); color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; transition: background-color 0.3s; }
+        .action-button:hover { background-color: #007a29; }
+        .remove-button { background-color: #dc3545; }
+        .remove-button:hover { background-color: #c82333; }
+        .table-actions { margin-top: 15px; }
+
+        /* Estilos do Calendário Visual */
+        .calendar-view {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .month-card {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            min-height: 120px;
+        }
+        .month-card h4 {
+            font-size: 1rem;
+            color: var(--cor-primaria-fieg);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .month-card .actions-list {
+            font-size: 0.85rem;
+        }
+        .month-card .action-item {
+            background-color: var(--cor-secundaria-fieg);
+            color: white;
+            padding: 5px 8px;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Estilos do Orçamento Geral */
+        .grand-total-card {
+            background: linear-gradient(135deg, var(--cor-primaria-fieg), var(--cor-secundaria-fieg));
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 8px;
+        }
+        .grand-total-card h3 { font-size: 1.5rem; margin-bottom: 10px; }
+        .grand-total-card .total-value { font-size: 3rem; font-weight: 700; }
+
+        .action-buttons-footer {
+            position: fixed;
+            bottom: 20px;
+            right: 30px;
+            z-index: 99;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .action-buttons-footer button {
+            border: none;
+            outline: none;
+            background-color: var(--cor-primaria-fieg);
+            color: white;
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: background-color 0.3s;
+        }
+        .action-buttons-footer button:hover { background-color: var(--cor-secundaria-fieg); }
+
+        footer { text-align: center; margin-top: 50px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 0.9rem; color: #777; }
+
+        @media print {
+            body { background-image: none; }
+            .main-wrapper { box-shadow: none; padding: 0; backdrop-filter: none; background-color: #fff; }
+            .container, .main-wrapper { padding: 0; }
+            .action-buttons-footer, .table-actions, .remove-button, .interactive-table input, .interactive-table select { display: none; }
+            th { background-color: #f2f2f2 !important; color: black !important; -webkit-print-color-adjust: exact; } /* Força a cor de fundo na impressão */
+            .total-row { background-color: #e9ecef !important; -webkit-print-color-adjust: exact; }
+            .card { page-break-inside: avoid; }
+            .eixo-estrategico { page-break-before: auto; }
+        }
+
+        @media (max-width: 992px) { .cards-container { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); } .calendar-view { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 768px) { .container { padding: 20px; } .calendar-view { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 576px) { .calendar-view { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="content-to-print" class="main-wrapper">
+            <header class="header">
+                <img src="https://www.fieg.com.br/esqueciminhasenha/img/marcaFIEG_azul.png" alt="Logo FIEG">
+                <h1>Planejamento Estratégico 2026</h1>
+                <p class="subtitle">Gerência de Desenvolvimento Industrial (GEDIN)</p>
+            </header>
+
+            <div class="vision-statement">
+                <p>"Ser o núcleo de inteligência estratégica da FIEG, catalisando a competitividade, a inovação e a sustentabilidade da indústria goiana através de dados, análises e ações de vanguarda."</p>
+            </div>
+
+            <section class="eixo-estrategico">
+                <div class="eixo-header"><h2>1. Inteligência Competitiva e Suporte à Decisão</h2></div>
+                </section>
+            <section class="eixo-estrategico">
+                <div class="eixo-header"><h2>2. Fomento à Inovação e Sustentabilidade</h2></div>
+                </section>
+            <section class="eixo-estrategico">
+                <div class="eixo-header"><h2>3. Protagonismo e Conexão com a Indústria</h2></div>
+                </section>
+             <section class="eixo-estrategico">
+                <div class="eixo-header"><h2>4. Estruturação e Excelência Operacional</h2></div>
+                </section>
+            
+            <section class="eixo-estrategico">
+                <div class="eixo-header"><h2>Dashboard de Metas e Transparência 2026</h2></div>
+                <div class="dashboard-grid">
+                    <div class="kpi-card"><div class="kpi-value">12+</div><div class="kpi-title">Estudos Publicados</div></div>
+                    <div class="kpi-card"><div class="kpi-value">4</div><div class="kpi-title">Edições do IDIGO</div></div>
+                    <div class="kpi-card"><div class="kpi-value">3</div><div class="kpi-title">Eventos Estratégicos</div></div>
+                    <div class="kpi-card"><div class="kpi-value">6</div><div class="kpi-title">Profissionais na Equipe</div></div>
+                </div>
+            </section>
+            
+            <section class="eixo-estrategico">
+                <div class="eixo-header"><h2>Cronograma de Ações Interativo 2026</h2></div>
+                <div class="card">
+                    <table class="interactive-table">
+                        <thead>
+                            <tr><th style="width: 50%;">Ação / Entrega</th><th style="width: 20%;">Mês</th><th style="width: 20%;">Custo (R$)</th><th style="width: 10%;">Ação</th></tr>
+                        </thead>
+                        <tbody id="scheduleTableBody"></tbody>
+                        <tfoot><tr class="total-row"><td colspan="2">Custo Total Previsto</td><td id="scheduleTotal">R$ 0,00</td><td></td></tr></tfoot>
+                    </table>
+                    <div class="table-actions"><button class="action-button" onclick="addScheduleRow()">Adicionar Ação</button></div>
+                    
+                    <div id="calendarView" class="calendar-view"></div>
+                </div>
+            </section>
+
+            <section class="eixo-estrategico">
+                <div class="eixo-header"><h2>Previsão Orçamentária Interativa 2026</h2></div>
+                <div class="card">
+                    <h3>Custos com Pessoal (Salários + Encargos)</h3>
+                    <table class="interactive-table">
+                        <thead><tr><th>Cargo</th><th>Custo Mensal (R$)</th><th>Início (Mês)</th><th>Ação</th></tr></thead>
+                        <tbody id="personnelTableBody"></tbody>
+                    </table>
+                    <div class="table-actions"><button class="action-button" onclick="addPersonnelRow()">Adicionar Profissional</button></div>
+                </div>
+                <div class="card" style="margin-top: 30px;">
+                    <h3>Evolução do Custo Mensal da Equipe (Burn Rate)</h3>
+                    <canvas id="budgetChart"></canvas>
+                </div>
+                <div class="card" style="margin-top: 30px;">
+                    <h3>Despesas Operacionais e de Desenvolvimento</h3>
+                     <table class="interactive-table">
+                        <thead><tr><th>Categoria</th><th>Descrição</th><th>Previsão Anual (R$)</th><th>Ação</th></tr></thead>
+                        <tbody id="operationsTableBody"></tbody>
+                         <tfoot><tr class="total-row"><td colspan="2">Total Anual (Operacional)</td><td id="operationsTotal">R$ 0,00</td><td></td></tr></tfoot>
+                    </table>
+                    <div class="table-actions"><button class="action-button" onclick="addOperationRow()">Adicionar Despesa</button></div>
+                </div>
+            </section>
+
+            <section class="eixo-estrategico">
+                <div class="eixo-header"><h2>Orçamento Geral Consolidado 2026</h2></div>
+                <div class="grand-total-card">
+                    <h3>Previsão de Investimento Total Anual</h3>
+                    <div id="grandTotalValue" class="total-value">R$ 0,00</div>
+                </div>
+            </section>
+        </div>
+        
+        <div class="action-buttons-footer">
+            <button id="savePdfBtn" title="Salvar como PDF">📄</button>
+            <button id="printBtn" title="Imprimir">🖨️</button>
+        </div>
+        
+        <footer>
+            <p>Planejamento Estratégico GEDIN 2026 | Federação das Indústrias do Estado de Goiás - FIEG</p>
+        </footer>
+    </div>
+
+    <script>
+        let budgetChart;
+        const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+
+        // --- DADOS INICIAIS ---
+        const initialPersonnel = [
+            { role: 'Gerente de Desenv. Industrial', cost: 28000, start: 1 },
+            { role: 'Economista Pleno/Sênior', cost: 22000, start: 1 },
+            { role: 'Especialista em Infraestrutura', cost: 22000, start: 1 }
+        ];
+        const initialOperations = [
+            { category: 'Viagens, Diárias e Capacitação', description: 'Eventos, seminários, cursos, Caravana/DIA I.', cost: 90000 },
+            { category: 'Ferramentas e Tecnologia', description: 'Plataformas de dados, softwares e gestão.', cost: 60000 },
+            { category: 'Pesquisa e Desenvolvimento', description: 'Consultorias e parcerias com universidades.', cost: 45000 }
+        ];
+        const initialSchedule = [
+            { action: 'Lançamento do IDIGO', month: 3, cost: 15000 },
+            { action: 'Realização do DIA I em SP', month: 5, cost: 50000 },
+            { action: 'Início da Caravana da Indústria', month: 8, cost: 25000 },
+            { action: 'Evento "Goiás Circular"', month: 11, cost: 30000 }
+        ];
+
+        // --- FUNÇÕES DAS TABELAS ---
+        function addRow(tableBodyId, rowContentFn, ...args) {
+            const tableBody = document.getElementById(tableBodyId);
+            const row = tableBody.insertRow();
+            row.innerHTML = rowContentFn(...args);
+        }
+
+        const personnelRowHTML = (role = '', cost = '', start = 1) => `
+            <td><input type="text" value="${role}" oninput="updateAll()"></td>
+            <td><input type="number" value="${cost}" oninput="updateAll()"></td>
+            <td><select onchange="updateAll()">${months.map((m, i) => `<option value="${i + 1}" ${i + 1 == start ? 'selected' : ''}>${m}</option>`).join('')}</select></td>
+            <td><button class="action-button remove-button" onclick="removeRow(this, 'personnel')">X</button></td>`;
+        
+        const operationRowHTML = (category = '', description = '', cost = '') => `
+            <td><input type="text" value="${category}"></td>
+            <td><input type="text" value="${description}"></td>
+            <td><input type="number" value="${cost}" oninput="updateAll()"></td>
+            <td><button class="action-button remove-button" onclick="removeRow(this, 'operations')">X</button></td>`;
+
+        const scheduleRowHTML = (action = '', month = 1, cost = '') => `
+            <td><input type="text" value="${action}" oninput="renderCalendar()"></td>
+            <td><select onchange="renderCalendar()">${months.map((m, i) => `<option value="${i + 1}" ${i + 1 == month ? 'selected' : ''}>${m}</option>`).join('')}</select></td>
+            <td><input type="number" value="${cost}" oninput="updateAll()"></td>
+            <td><button class="action-button remove-button" onclick="removeRow(this, 'schedule')">X</button></td>`;
+
+        function addPersonnelRow() { addRow('personnelTableBody', personnelRowHTML); }
+        function addOperationRow() { addRow('operationsTableBody', operationRowHTML); }
+        function addScheduleRow() { addRow('scheduleTableBody', scheduleRowHTML); }
+
+        function removeRow(button, tableType) {
+            button.closest('tr').remove();
+            updateAll();
+        }
+
+        function getTableTotal(tableBodyId) {
+            const tableBody = document.getElementById(tableBodyId);
+            let total = 0;
+            for (const row of tableBody.rows) {
+                total += Number(row.cells[2].querySelector('input').value) || 0;
+            }
+            return total;
+        }
+
+        // --- ATUALIZAÇÕES GERAIS ---
+        function updateAll() {
+            updateChart();
+            updateTotals('operations');
+            updateTotals('schedule');
+            renderCalendar();
+            updateGrandTotal();
+        }
+
+        function updateTotals(tableType) {
+            const total = getTableTotal(tableType === 'operations' ? 'operationsTableBody' : 'scheduleTableBody');
+            const totalCellId = tableType === 'operations' ? 'operationsTotal' : 'scheduleTotal';
+            document.getElementById(totalCellId).textContent = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+        
+        function updateGrandTotal() {
+            const personnelTotal = budgetChart.data.datasets[0].data.reduce((sum, monthCost) => sum + monthCost, 0);
+            const operationsTotal = getTableTotal('operationsTableBody');
+            const scheduleTotal = getTableTotal('scheduleTableBody');
+            const grandTotal = personnelTotal + operationsTotal + scheduleTotal;
+            document.getElementById('grandTotalValue').textContent = grandTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        // --- LÓGICA DO GRÁFICO ---
+        function updateChart() {
+            const tableBody = document.getElementById('personnelTableBody');
+            const monthlyCosts = Array(12).fill(0);
+            for (const row of tableBody.rows) {
+                const cost = Number(row.cells[1].querySelector('input').value) || 0;
+                const startMonth = Number(row.cells[2].querySelector('select').value);
+                for (let i = startMonth - 1; i < 12; i++) {
+                    monthlyCosts[i] += cost;
+                }
+            }
+            budgetChart.data.datasets[0].data = monthlyCosts;
+            budgetChart.update();
+        }
+
+        // --- LÓGICA DO CALENDÁRIO ---
+        function renderCalendar() {
+            const calendarView = document.getElementById('calendarView');
+            calendarView.innerHTML = months.map(month => `<div class="month-card" id="month-${month}"><h4>${month}</h4><div class="actions-list"></div></div>`).join('');
+            
+            const scheduleBody = document.getElementById('scheduleTableBody');
+            for(const row of scheduleBody.rows) {
+                const action = row.cells[0].querySelector('input').value;
+                const monthIndex = row.cells[1].querySelector('select').value - 1;
+                const monthName = months[monthIndex];
+                if (action) {
+                    const monthDiv = document.querySelector(`#month-${monthName} .actions-list`);
+                    monthDiv.innerHTML += `<div class="action-item" title="${action}">${action}</div>`;
+                }
+            }
+            updateTotals('schedule');
+        }
+
+        // --- INICIALIZAÇÃO DA PÁGINA ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initialPersonnel.forEach(p => addPersonnelRow(p.role, p.cost, p.start));
+            initialOperations.forEach(o => addOperationRow(o.category, o.description, o.cost));
+            initialSchedule.forEach(s => addScheduleRow(s.action, s.month, s.cost));
+
+            const ctx = document.getElementById('budgetChart').getContext('2d');
+            budgetChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+                    datasets: [{ label: 'Custo Mensal da Equipe (R$)', data: [], backgroundColor: 'rgba(0, 51, 102, 0.8)', borderWidth: 1 }]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true, ticks: { callback: (value) => 'R$ ' + value.toLocaleString('pt-BR') } } },
+                    plugins: { tooltip: { callbacks: { label: (context) => `Custo: ${context.parsed.y.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}` } } }
+                }
+            });
+            updateAll();
+        });
+        
+        // --- LÓGICA DOS BOTÕES DE AÇÃO FINAIS ---
+        document.getElementById('savePdfBtn').addEventListener('click', () => {
+            const element = document.getElementById('content-to-print');
+            const buttons = document.querySelector('.action-buttons-footer');
+            const opt = {
+                margin: 0.5, filename: 'Planejamento_Estrategico_GEDIN_2026.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+            buttons.style.display = 'none';
+            html2pdf().set(opt).from(element).save().then(() => {
+                buttons.style.display = 'flex';
+            });
+        });
+        
+        document.getElementById('printBtn').addEventListener('click', () => { window.print(); });
+    </script>
+
+</body>
+</html>
